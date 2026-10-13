@@ -1,4 +1,11 @@
-2a. 
-2b. 
-2c. 
-2d. 
+2a. we expand into one forward per argument, so we get std::forward<Arg1>(arg1), std::forward<Arg2>(arg2),
+... , std::forward<ArgN>(argN), a comma separated list where each argument is kept as its own type.
+
+2b. f(arg1) + 1, f(arg2) + 1, ... , f(argN) + 1. the brackets are what repeats, so the + 1 ends up inside
+each element and the commas in between are just the expansion, not a + 1 of their own.
+
+2c. std::tuple<Arg1, Arg2, ... , ArgN>, the pack just drops into the template argument list.
+
+2d. std::tuple<std::vector<Arg1>, std::vector<Arg2>, ... , std::vector<ArgN>>. here the pack sits inside
+another template, so each Arg gets its own vector first, and those vectors are what make up the tuple.
+

@@ -1,7 +1,35 @@
 Hash table:
+for memory it only stores the entities that actually have the component, but every entry drags a key, a
+value and a next pointer along, plus the bucket array, so it ends up much bigger than the raw data.
+for speed it is O(1) on average, but we hash and then chase pointers, so it is not cache friendly and
+the constant factor is high, and under lots of collisions it slides towards O(n).
+for maintenance it is easy to add and remove entries and it doesn't care how sparse our ids are, but
+growing it forces a rehash, and we can't walk it in a cache friendly or sorted order.
 
 Map:
+same idea but stored as a tree, so one node per entity that has the component, each node holding the
+key, the value, the child and parent pointers and a colour, so more overhead per entry than the hash
+table and no bucket array to pay for.
+for speed a lookup is O(log n) and we still chase pointers down the tree, so worse constants and worse
+cache behaviour than the hash table, the one thing we get back is that entities stay sorted so walking
+them in order is free.
+for maintenance adding and removing is O(log n) and safe and it also takes arbitrary ids, but the
+iteration locality is just as bad.
 
 Sparse mapping 1:
+for memory we pay for a full [N][K] block of ints whether the components are set or not, so it wastes
+space when the map is mostly -1, and it needs our entity ids packed into 0..N-1.
+for speed access is a single O(1) index and it is very cache friendly, especially when we read one
+entity's whole row since its K slots sit next to each other.
+for maintenance it is simple to update, mark a missing component with -1 and push a new row for a new
+entity, but we can't add a new component type at runtime since K is fixed, and pulling an entity out of
+the middle leaves a gap or costs a swap.
 
 Sparse mapping 2:
+for memory it is the same O(N*K) footprint as mapping 1, each of the K vectors is sized to N.
+for speed it is still O(1) and cache friendly, but the good locality is the other way round, walking
+one component across every entity steps through one contiguous vector, which is the loop we usually
+want.
+for maintenance the trade offs are the same as mapping 1, ids must be packed and removal leaves gaps,
+and adding a component type just means adding a vector.
+
