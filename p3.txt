@@ -1,0 +1,7 @@
+Hash table:
+
+Map:
+
+Sparse mapping 1:
+
+Sparse mapping 2:
